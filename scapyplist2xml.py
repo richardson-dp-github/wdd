@@ -21,9 +21,11 @@ from scapy.all import *
 
 def scapyplist2xml(p):
     for i in p:
-        for j in i:
-            for k in j:
-                print "{}".format(k)
+        for j in PacketsOfInterest:
+            if i.haslayer(j):
+                print "This is a packet of interest"
+            else:
+                print "No Packets of Interest"
 
 
 def SniffExistingFile(f):
@@ -40,6 +42,7 @@ PacketsOfInterest = []
 PacketsOfInterest.append(Dot11ProbeReq)
 PacketsOfInterest.append(Dot11ProbeResp)
 
+print PacketsOfInterest
 
 
 # -------------------------------------
