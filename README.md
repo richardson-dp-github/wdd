@@ -8,7 +8,7 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 
 * WiFi
 
-## Note
+### Note
 
 * Consider all code here in as a developmental prototype and forgive any imperfections
 
@@ -20,6 +20,8 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 
 ### Possible Directions this Project Might Take
 
+* Cross-Device Correlation
+ * Attribute packets to an individual as opposed to a device or MAC Address
 
 ### References
 
