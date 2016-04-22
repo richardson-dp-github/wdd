@@ -10,7 +10,7 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 
 ### Current Work
 
-### Goals
+### Possible Directions this Project Might Take
 
 
 ### References
