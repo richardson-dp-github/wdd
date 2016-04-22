@@ -15,23 +15,34 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 from scapy.all import *
 
-
-
+import xml.etree.ElementTree as ET #for XML conversion
+# from xml.etree.ElementTree import ElementTree
 
 
 def scapyplist2xml(p):
+    root = ET.Element("PacketList")
     for i in p:
         for j in PacketsOfInterest:
             if i.haslayer(j):
-                print "This is a packet of interest"
-            else:
-                print "No Packets of Interest"
+                pkt = ET.SubElement(root, "Packet")
 
+                packettype1 = ET.SubElement(pkt, "Type")
+                packettype1.text = str(j)
+
+                time1 = ET.SubElement(pkt,"Time")
+                time1.text = str(i.time)
+                addr1 = ET.SubElement(pkt,"Addr1")
+                addr1.text = str(i.addr1)
+                addr2 = ET.SubElement(pkt,"Addr2")
+                addr2.text = str(i.addr2)
+                info1 = ET.SubElement(pkt,"Probe")
+                info1.text = str(i.info)
+
+    tree = ET.ElementTree(root)
+    tree.write("output.xml")
 
 def SniffExistingFile(f):
     return sniff(offline=f);
-
-
 
 # -------------------------------------
 # START Global Variables (for now)
@@ -65,3 +76,17 @@ scapyplist2xml(y)
 
 
 # --------------------------------------
+
+
+# References ===============================================
+
+# This was the basis for XML
+
+# https://docs.python.org/2/library/xml.etree.elementtree.html
+
+# I used the tutorial below to clarify a few things that were unclear
+#   from the python documentation above.
+
+# http://effbot.org/zone/element-index.htm
+
+# ===========================================================
