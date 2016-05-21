@@ -67,11 +67,11 @@ print PacketsOfInterest
 # Test out the function here
 # -------------------------------------
 
-y = SniffExistingFile('capture1-05.cap')
+# y = SniffExistingFile('capture1-05.cap')
 
-scapyplist2xml(y)
+# scapyplist2xml(y)
 
-
+#
 
 
 

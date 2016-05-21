@@ -23,6 +23,13 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 * Cross-Device Correlation
  * Attribute packets to an individual as opposed to a device or MAC Address
 
+
+### Test Plan
+
+* Use capture1-05.cap as a private test: one sensor to the main terminal
+* Main Terminal is 127.0.0.1
+* Arrange everything in the testconfig file
+
 ### References
 
 ### Similar Work / Projects

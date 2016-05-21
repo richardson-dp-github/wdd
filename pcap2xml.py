@@ -74,7 +74,7 @@ print PacketsOfInterest
 # Test out the function here
 # -------------------------------------
 
-pcap2xml('capture1-05.cap', "output.xml")
+# pcap2xml('capture1-05.cap', "output.xml")
 
 # --------------------------------------
 
