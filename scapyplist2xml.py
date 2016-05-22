@@ -19,7 +19,7 @@ import xml.etree.ElementTree as ET #for XML conversion
 # from xml.etree.ElementTree import ElementTree
 
 
-def scapyplist2xml(p):
+def scapyplist2xml(p, oFile):
     root = ET.Element("PacketList")
     for i in p:
         for j in PacketsOfInterest:
@@ -39,7 +39,7 @@ def scapyplist2xml(p):
                 info1.text = str(i.info)
 
     tree = ET.ElementTree(root)
-    tree.write("output.xml")
+    tree.write(oFile)
 
 def SniffExistingFile(f):
     return sniff(offline=f);
