@@ -1,6 +1,6 @@
 # Slave Sniff and Send -- Test
 
-import config
+import wifiri_sysconfig
 import scapyplist2xml
 from scapy.all import *
 # Added in order to receive data
@@ -8,16 +8,16 @@ import socket
 import sys, errno
 import time
 
-samplePeriod = config.initialPeriodInSeconds
+samplePeriod = wifiri_sysconfig.initialPeriodInSeconds
 
 # Self
-host = config.slaveIPAddress
-port = config.slavePort
+host = wifiri_sysconfig.slaveIPAddress
+port = wifiri_sysconfig.slavePort
 
 # Connect to the Central Server
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-centralServerHost = config.centralServerIPAddress
-centralServerPort = config.centralServerPort
+centralServerHost = wifiri_sysconfig.centralServerIPAddress
+centralServerPort = wifiri_sysconfig.centralServerPort
 s.connect((centralServerHost, centralServerPort))
 
 def handle_packet(packet):
@@ -26,7 +26,7 @@ def handle_packet(packet):
 for i in range(1,5):
     try:
         print 'starting sniff # '+str(i)+'...'
-        x = sniff(offline=config.sampleFile, count=15)
+        x = sniff(offline=wifiri_sysconfig.sampleFile, count=15)
         print 'converting to XML...'
         try:
             filename = 'output_msg'+str(i)+'.xml'

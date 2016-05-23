@@ -1,4 +1,4 @@
-# Test Configuration
+# Configuration File
 
 
 # Is this a test, or is this for real?
