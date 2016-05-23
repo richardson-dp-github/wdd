@@ -12,6 +12,14 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 
 * Consider all code here in as a developmental prototype and forgive any imperfections
 
+### slave_sniff.py is loaded onto each agent (probably a raspberry pi) and will execute sniff, filter, send
+
+* Sniff
+* Filter
+** Filtering for the desired kind of WiFi Packets (eg mostly probe requests)
+** Also, for ethical reasons, this provides the opportunity to white-list MAC addresses
+* Send
+
 ### Current Work, Status
 
 * Currently, this project is in the status of laying down the groundwork for work that might go in a number of directions.  This groundwork may be almost a repeat of sources found elsewhere.  Sources and references are cited as much as is feasible.
