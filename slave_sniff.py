@@ -26,7 +26,7 @@ def handle_packet(packet):
 for i in range(1,5):
     try:
         print 'starting sniff # '+str(i)+'...'
-        x = sniff(offline=wifiri_sysconfig.sampleFile, count=15)
+        x = sniff(offline=wifiri_sysconfig.sampleFile, count=30)
         print 'converting to XML...'
         try:
             filename = 'output_msg'+str(i)+'.xml'
