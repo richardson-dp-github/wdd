@@ -17,7 +17,7 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 * Sniff
 * Filter
 ** Filtering for the desired kind of WiFi Packets (eg mostly probe requests)
-** Also, for ethical reasons, this provides the opportunity to white-list MAC addresses
+** Also, for ethical reasons, this provides the opportunity to white-list MAC addresses when needed
 * Send
 
 ### Current Work, Status
