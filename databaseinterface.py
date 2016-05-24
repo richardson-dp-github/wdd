@@ -31,8 +31,7 @@ def insertRecord(nodeID, locTimeStamp, wifipackettype, addr1, addr2):
     #cursor.execute('''INSERT into Packets (nodeID, locTimeStamp, wifipackettype, addr1, addr2)
                   #values (%d, %f, %s, %s, %s)''',
                   #(nodeID, locTimeStamp, wifipackettype, addr1, addr2))
-    cursor.execute('''INSERT into Packets (nodeID) values (1)''')  #This worked, now try the others
-    cursor.execute('''INSERT into Packets (nodeID, locTimeStamp) values (2, 1042345000.22)''')
+    cursor.execute('''INSERT into Packets (nodeID, locTimeStamp, wifipackettype, addr1, addr2) values (%s, %s, %s, %s, %s)''', (nodeID, locTimeStamp, wifipackettype, addr1, addr2))
     # Commit your changes in the database
     db.commit()
 
@@ -42,13 +41,14 @@ db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
 # append a file to the table
 ## import the file
-#f = 'output_msg1.xml'
-#for event, elem in ET.iterparse(f, events=('start', 'end', 'start-ns', 'end-ns')):
-#   print event, elem
+f = 'output_msg1.xml'
+for event, elem in ET.iterparse(f, events=('start', 'end', 'start-ns', 'end-ns')):
+   print event, elem
 
 # Test insertRecord
-insertRecord(1,45234442,1,'FF:FF:FF:FF:FF:FF','FF:FF:FF:FF:FF:FF')
+insertRecord(1,'2000-06-22 05:45:00','ProbeRequest','FF:FF:FF:FF:FF:FF','FF:FF:FF:FF:FF:FF')
 
+# Now Test Parsing the XML
 
 # disconnect from server
 db.close()
