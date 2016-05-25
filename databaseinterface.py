@@ -36,6 +36,18 @@ def insertRecord(nodeID, locTimeStamp, wifipackettype, addr1, addr2):
     # Commit your changes in the database
     db.commit()
 
+def dictionaryToTupleValues(d):
+    x = ()
+    for vals in d.itervalues():
+        x = x + (vals,)
+    return x
+
+def test_dictionaryToTupleValues():
+    x = {'species': 'hippo', 'status': 'hungry hungry'}
+    print x, type(x)
+    y = dictionaryToTupleValues(x)
+    print y, type(y)
+
 def displayList(l):
     ds = '';
     for s in l:
@@ -120,7 +132,7 @@ def test_insertRecord():
 # Open database connection
 db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
-test_translateValsAndFieldNamesIntoDatabase()
+test_dictionaryToTupleValues()
 
 
 # append a file to the table
