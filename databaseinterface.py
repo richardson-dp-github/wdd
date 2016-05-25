@@ -35,20 +35,100 @@ def insertRecord(nodeID, locTimeStamp, wifipackettype, addr1, addr2):
     # Commit your changes in the database
     db.commit()
 
+def displayList(l):
+    ds = '';
+    for s in l:
+        ds = ds + s + ','
+    ds = ds.rstrip(',')    # Remove the trailing comma
+    return ds
+
+# p is a dictionary
+def addPacketToCentralTable(p):
+    fieldlist = []
+    valuelist = []
+    for field, value in p:
+        fieldlist.append(field)
+        valuelist.append(value)
+
+    strSQLCmd = '''INSERT into Packets (''' + displayList(fieldlist) +  ''') values (%s, %s, %s, %s, %s)'''
+    print strSQLCmd
+
+
+# x = single XML
+def singleXMLElementToDictionary(x):
+    xx = {}
+    for i in x:
+        # print 'Tag: ' + i.tag
+        # print 'Text: ' + i.text
+        xx[i.tag] = i.text
+    return xx
+
+# d is a dictionary
+def translateFieldNamesIntoDatabase(d):
+    valTranslationDict = {"<class 'scapy.layers.dot11.Dot11ProbeReq'>": 'ProbeRequest',
+                          "<class 'scapy.layers.dot11.Dot11ProbeResp'>": 'ProbeResponse'}
+    for key, value in d.iteritems():
+        if value in valTranslationDict:
+            d[key] = valTranslationDict[value]    # Make the translation (d is passed by value)
+    return d
+
+def test_translateFieldNamesIntoDatabase():
+    f = ET.parse('output_msg1.xml')
+    for item in f.iterfind('Packet'):
+        print translateFieldNamesIntoDatabase(singleXMLElementToDictionary(item))
+
+def test_signalXMLElementToDictionary():
+    f = ET.parse('output_msg1.xml')
+    for item in f.iterfind('Packet'):
+        print singleXMLElementToDictionary(item)
+
+
+def test_parseAndPrint():
+    # Now Test Parsing the XML
+    f = ET.parse('output_msg1.xml')
+    for item in f.iterfind('Packet'):
+        Type = item.findtext('Type')
+        Time = item.findtext('Time')
+        Addr1 = item.findtext('Addr1')
+        Addr2 = item.findtext('Addr2')
+        print(item)
+        print(Type)
+        print(Time)
+        print(Addr1)
+        print(Addr2)
+        print()
+
+        insertRecord(3,Time,Type,Addr1,Addr2)
+
+
+def test_addPacketToCentralTable():
+    f = ET.parse('output_msg1.xml')
+    for item in f.iterfind('Packet'):
+        addPacketToCentralTable(item)
+
+
+# Test insertRecord
+def test_insertRecord():
+    insertRecord(1,'2000-06-22 05:45:00','ProbeRequest','FF:FF:FF:FF:FF:FF','FF:FF:FF:FF:FF:FF')
+
 
 # Open database connection
 db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
+test_translateFieldNamesIntoDatabase()
+
+
 # append a file to the table
 ## import the file
-f = 'output_msg1.xml'
-for event, elem in ET.iterparse(f, events=('start', 'end', 'start-ns', 'end-ns')):
-   print event, elem
 
-# Test insertRecord
-insertRecord(1,'2000-06-22 05:45:00','ProbeRequest','FF:FF:FF:FF:FF:FF','FF:FF:FF:FF:FF:FF')
+#for event, elem in ET.iterparse(f, events=('start', 'end', 'start-ns', 'end-ns')):
+#   print event, elem
 
-# Now Test Parsing the XML
+
+
+
+
+
 
 # disconnect from server
 db.close()
