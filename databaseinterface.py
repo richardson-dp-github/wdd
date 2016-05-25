@@ -2,6 +2,7 @@
 
 import MySQLdb
 import xml.etree.ElementTree as ET #for XML conversion
+import time
 
 #parameters
 
@@ -64,18 +65,22 @@ def singleXMLElementToDictionary(x):
     return xx
 
 # d is a dictionary
-def translateFieldNamesIntoDatabase(d):
+def translateValsAndFieldNamesIntoDatabase(d):
     valTranslationDict = {"<class 'scapy.layers.dot11.Dot11ProbeReq'>": 'ProbeRequest',
                           "<class 'scapy.layers.dot11.Dot11ProbeResp'>": 'ProbeResponse'}
+
     for key, value in d.iteritems():
         if value in valTranslationDict:
             d[key] = valTranslationDict[value]    # Make the translation (d is passed by value)
+        if key == 'Time':
+            d[key] = time.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(float(value)))
+
     return d
 
-def test_translateFieldNamesIntoDatabase():
+def test_translateValsAndFieldNamesIntoDatabase():
     f = ET.parse('output_msg1.xml')
     for item in f.iterfind('Packet'):
-        print translateFieldNamesIntoDatabase(singleXMLElementToDictionary(item))
+        print translateValsAndFieldNamesIntoDatabase(singleXMLElementToDictionary(item))
 
 def test_signalXMLElementToDictionary():
     f = ET.parse('output_msg1.xml')
@@ -115,7 +120,7 @@ def test_insertRecord():
 # Open database connection
 db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
-test_translateFieldNamesIntoDatabase()
+test_translateValsAndFieldNamesIntoDatabase()
 
 
 # append a file to the table
