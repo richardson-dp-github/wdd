@@ -48,13 +48,13 @@ def test_dictionaryToTupleValues():
     y = dictionaryToTupleValues(x)
     print y, type(y)
 
-def displayList(l, withQuotes):
+def displayList(l, withQuotes=False):
     ds = ''
     for s in l:
         if not withQuotes:
             ds = ds + str(s) + ','
         else:
-            ds = ds + ''' + str(s) + ''' + ','
+            ds = ds + "'" + str(s) + "'" + ','
     ds = ds.rstrip(',')    # Remove the trailing comma
     return ds
 
@@ -66,10 +66,11 @@ def addPacketToCentralTable(p):
         fieldlist.append(field)
         valuelist.append(value)
 
-    strSQLCmd = 'INSERT into Packets (' + displayList(fieldlist) +  ') values (' + displayList(valuelist) + ')'
-    # cursor = db.cursor()
-    # cursor.execute()
-    print strSQLCmd
+    strSQLCmd = 'INSERT into Packets (' + displayList(fieldlist, False) +  ') values (' + displayList(valuelist, True) + ')'
+    cursor = db.cursor()
+    cursor.execute(strSQLCmd)
+    db.commit()
+    # print strSQLCmd
 
 def test_addPacketToCentralTable():
     x = {'nodeID': 5, 'locTimeStamp': '1987-04-20 03:54:32', 'wifipackettype': 'ProbeRequest','addr1': 'ff:ff:ff:ff:ff:ff', 'addr2': 'ff:ff:ff:ff:ff:ff'}
