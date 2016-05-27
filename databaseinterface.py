@@ -98,11 +98,17 @@ def translateValsAndFieldNamesIntoCentralDBPreferredTerms(d):
     valTranslationDict = {"<class 'scapy.layers.dot11.Dot11ProbeReq'>": 'ProbeRequest',
                           "<class 'scapy.layers.dot11.Dot11ProbeResp'>": 'ProbeResponse'}
 
+    # First, the field names
+    if 'Time' in d:
+        d['locTimeStamp'] = time.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(float(d.pop('Time'))))
+    if 'Type' in d:
+        d['wifipackettype'] = d.pop('Type')
+
+    # Now, the values
     for key, value in d.iteritems():
         if value in valTranslationDict:
             d[key] = valTranslationDict[value]    # Make the translation (d is passed by value)
-        if key == 'Time':
-            d[key] = time.strftime('%Y-%m-%d %H:%M:%S',  time.gmtime(float(value)))
+
 
     return d
 
@@ -110,38 +116,6 @@ def test_translateValsAndFieldNamesIntoCentralDBPreferredTerms():
     f = ET.parse('output_msg1.xml')
     for item in f.iterfind('Packet'):
         print translateValsAndFieldNamesIntoCentralDBPreferredTerms(singleXMLElementToDictionary(item))
-
-
-
-
-def test_parseAndPrint():
-    # Now Test Parsing the XML
-    f = ET.parse('output_msg1.xml')
-    for item in f.iterfind('Packet'):
-        Type = item.findtext('Type')
-        Time = item.findtext('Time')
-        Addr1 = item.findtext('Addr1')
-        Addr2 = item.findtext('Addr2')
-        print(item)
-        print(Type)
-        print(Time)
-        print(Addr1)
-        print(Addr2)
-        print()
-
-        insertRecord(3,Time,Type,Addr1,Addr2)
-
-
-# def test_addPacketToCentralTable():
-#    f = ET.parse('output_msg1.xml')
-#    for item in f.iterfind('Packet'):
-#        addPacketDictToCentralTable(item)
-
-
-# Test insertRecord
-def test_insertRecord():
-    insertRecord(1,'2000-06-22 05:45:00','ProbeRequest','FF:FF:FF:FF:FF:FF','FF:FF:FF:FF:FF:FF')
-
 
 # Open database connection
 db = MySQLdb.connect("localhost",userName,passWord,dbName )
@@ -157,8 +131,8 @@ db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
 
 
+# test_translateValsAndFieldNamesIntoCentralDBPreferredTerms()
 test_xmlFileToCentralDB()
-
 
 
 # disconnect from server
