@@ -26,16 +26,6 @@ def requestCommand():
         except:
             print 'That did not work, try again...'
 
-def insertRecord(nodeID, locTimeStamp, wifipackettype, addr1, addr2):
-    cursor = db.cursor()
-    #SQL query to INSERT a record into the table .
-    #cursor.execute('''INSERT into Packets (nodeID, locTimeStamp, wifipackettype, addr1, addr2)
-                  #values (%d, %f, %s, %s, %s)''',
-                  #(nodeID, locTimeStamp, wifipackettype, addr1, addr2))
-    cursor.execute('''INSERT into Packets (nodeID, locTimeStamp, wifipackettype, addr1, addr2) values (%s, %s, %s, %s, %s)''', (nodeID, locTimeStamp, wifipackettype, addr1, addr2))
-    # Commit your changes in the database
-    db.commit()
-
 def dictionaryToTupleValues(d):
     x = ()
     for vals in d.itervalues():
@@ -58,6 +48,15 @@ def displayList(l, withQuotes=False):
     ds = ds.rstrip(',')    # Remove the trailing comma
     return ds
 
+# xmlfile is the name of a file
+def xmlFileToCentralDB(xmlfile):
+    f = ET.parse(xmlfile)
+    for item in f.iterfind('Packet'):
+        addPacketDictToCentralTable(translateValsAndFieldNamesIntoCentralDBPreferredTerms(singleXMLElementToDictionary(item)))
+
+def test_xmlFileToCentralDB():
+    xmlFileToCentralDB('output_msg1.xml')
+
 # p is a dictionary
 def addPacketDictToCentralTable(p):
     fieldlist = []
@@ -67,10 +66,11 @@ def addPacketDictToCentralTable(p):
         valuelist.append(value)
 
     strSQLCmd = 'INSERT into Packets (' + displayList(fieldlist, False) +  ') values (' + displayList(valuelist, True) + ')'
+    print strSQLCmd
     cursor = db.cursor()
     cursor.execute(strSQLCmd)
     db.commit()
-    # print strSQLCmd
+
 
 def test_addPacketDictToCentralTable():
     x = {'nodeID': 5, 'locTimeStamp': '1987-04-20 03:54:32', 'wifipackettype': 'ProbeRequest','addr1': 'ff:ff:ff:ff:ff:ff', 'addr2': 'ff:ff:ff:ff:ff:ff'}
@@ -86,8 +86,15 @@ def singleXMLElementToDictionary(x):
         xx[i.tag] = i.text
     return xx
 
+# Test
+def test_signalXMLElementToDictionary():
+    f = ET.parse('output_msg1.xml')
+    for item in f.iterfind('Packet'):
+        print singleXMLElementToDictionary(item)
+
 # d is a dictionary
-def translateValsAndFieldNamesIntoDatabase(d):
+# This function will evolve over time
+def translateValsAndFieldNamesIntoCentralDBPreferredTerms(d):
     valTranslationDict = {"<class 'scapy.layers.dot11.Dot11ProbeReq'>": 'ProbeRequest',
                           "<class 'scapy.layers.dot11.Dot11ProbeResp'>": 'ProbeResponse'}
 
@@ -99,15 +106,12 @@ def translateValsAndFieldNamesIntoDatabase(d):
 
     return d
 
-def test_translateValsAndFieldNamesIntoDatabase():
+def test_translateValsAndFieldNamesIntoCentralDBPreferredTerms():
     f = ET.parse('output_msg1.xml')
     for item in f.iterfind('Packet'):
-        print translateValsAndFieldNamesIntoDatabase(singleXMLElementToDictionary(item))
+        print translateValsAndFieldNamesIntoCentralDBPreferredTerms(singleXMLElementToDictionary(item))
 
-def test_signalXMLElementToDictionary():
-    f = ET.parse('output_msg1.xml')
-    for item in f.iterfind('Packet'):
-        print singleXMLElementToDictionary(item)
+
 
 
 def test_parseAndPrint():
@@ -153,7 +157,7 @@ db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
 
 
-test_addPacketToCentralTable()
+test_xmlFileToCentralDB()
 
 
 

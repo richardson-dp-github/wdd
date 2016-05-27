@@ -47,3 +47,12 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
 
 ### Similar Work / Projects
 
+### Diagram
+
+#### Simple, Prototype Test Case
+
+_______________________________________________________________________
+Slave              | Xfer Medium |  Master / Central Node
+                   |             |
+Sniff -> XML File -> String      -> XML File -> Dictionary -> mySQL DB
+___________________|_____________|_____________________________________
