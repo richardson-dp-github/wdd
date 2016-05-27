@@ -59,7 +59,7 @@ def displayList(l, withQuotes=False):
     return ds
 
 # p is a dictionary
-def addPacketToCentralTable(p):
+def addPacketDictToCentralTable(p):
     fieldlist = []
     valuelist = []
     for field, value in p.iteritems():
@@ -72,10 +72,10 @@ def addPacketToCentralTable(p):
     db.commit()
     # print strSQLCmd
 
-def test_addPacketToCentralTable():
+def test_addPacketDictToCentralTable():
     x = {'nodeID': 5, 'locTimeStamp': '1987-04-20 03:54:32', 'wifipackettype': 'ProbeRequest','addr1': 'ff:ff:ff:ff:ff:ff', 'addr2': 'ff:ff:ff:ff:ff:ff'}
     print x, type(x)
-    addPacketToCentralTable(x)
+    addPacketDictToCentralTable(x)
 
 # x = single XML
 def singleXMLElementToDictionary(x):
@@ -131,7 +131,7 @@ def test_parseAndPrint():
 # def test_addPacketToCentralTable():
 #    f = ET.parse('output_msg1.xml')
 #    for item in f.iterfind('Packet'):
-#        addPacketToCentralTable(item)
+#        addPacketDictToCentralTable(item)
 
 
 # Test insertRecord
