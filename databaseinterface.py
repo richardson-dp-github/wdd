@@ -48,10 +48,13 @@ def test_dictionaryToTupleValues():
     y = dictionaryToTupleValues(x)
     print y, type(y)
 
-def displayList(l):
-    ds = '';
+def displayList(l, withQuotes):
+    ds = ''
     for s in l:
-        ds = ds + s + ','
+        if not withQuotes:
+            ds = ds + str(s) + ','
+        else:
+            ds = ds + ''' + str(s) + ''' + ','
     ds = ds.rstrip(',')    # Remove the trailing comma
     return ds
 
@@ -59,13 +62,19 @@ def displayList(l):
 def addPacketToCentralTable(p):
     fieldlist = []
     valuelist = []
-    for field, value in p:
+    for field, value in p.iteritems():
         fieldlist.append(field)
         valuelist.append(value)
 
-    strSQLCmd = '''INSERT into Packets (''' + displayList(fieldlist) +  ''') values (%s, %s, %s, %s, %s)'''
+    strSQLCmd = 'INSERT into Packets (' + displayList(fieldlist) +  ') values (' + displayList(valuelist) + ')'
+    # cursor = db.cursor()
+    # cursor.execute()
     print strSQLCmd
 
+def test_addPacketToCentralTable():
+    x = {'nodeID': 5, 'locTimeStamp': '1987-04-20 03:54:32', 'wifipackettype': 'ProbeRequest','addr1': 'ff:ff:ff:ff:ff:ff', 'addr2': 'ff:ff:ff:ff:ff:ff'}
+    print x, type(x)
+    addPacketToCentralTable(x)
 
 # x = single XML
 def singleXMLElementToDictionary(x):
@@ -118,10 +127,10 @@ def test_parseAndPrint():
         insertRecord(3,Time,Type,Addr1,Addr2)
 
 
-def test_addPacketToCentralTable():
-    f = ET.parse('output_msg1.xml')
-    for item in f.iterfind('Packet'):
-        addPacketToCentralTable(item)
+# def test_addPacketToCentralTable():
+#    f = ET.parse('output_msg1.xml')
+#    for item in f.iterfind('Packet'):
+#        addPacketToCentralTable(item)
 
 
 # Test insertRecord
@@ -132,7 +141,7 @@ def test_insertRecord():
 # Open database connection
 db = MySQLdb.connect("localhost",userName,passWord,dbName )
 
-test_dictionaryToTupleValues()
+
 
 
 # append a file to the table
@@ -143,7 +152,7 @@ test_dictionaryToTupleValues()
 
 
 
-
+test_addPacketToCentralTable()
 
 
 
