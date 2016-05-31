@@ -20,6 +20,7 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
   * Also, for ethical reasons, this provides the opportunity to white-list MAC addresses when needed
 * Send
   * To the Central Server for Analysis
+  * For testing the initial prototype, an e-mail will be sent
 
 ### Analyzing Packets
 

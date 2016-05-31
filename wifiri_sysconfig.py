@@ -21,6 +21,8 @@ sampleFile = 'capture1-05.cap'
 if TestMode == True:
     centralServerIPAddress = '127.0.0.1'
     centralServerPort = 50000
+    probeRequestOfInterest = '2WIRE024'
+    centralServerSMTPEmailAddress = 'richardson.dp+wifipi@gmail.com'
 else:
     centralServerIPAddress = '127.0.0.1'
     centralServerPort = 50000

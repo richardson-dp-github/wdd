@@ -55,7 +55,7 @@ def xmlFileToCentralDB(xmlfile):
         addPacketDictToCentralTable(translateValsAndFieldNamesIntoCentralDBPreferredTerms(singleXMLElementToDictionary(item)))
 
 def test_xmlFileToCentralDB():
-    xmlFileToCentralDB('output_msg1.xml')
+    xmlFileToCentralDB('output.xml')
 
 # p is a dictionary
 def addPacketDictToCentralTable(p):
