@@ -1,7 +1,7 @@
 # Configuration File
 
 
-# Is this a test, or is this for real?
+# Is this a test?
 TestMode = True
 
 
@@ -22,7 +22,6 @@ if TestMode == True:
     centralServerIPAddress = '127.0.0.1'
     centralServerPort = 50000
     probeRequestOfInterest = '2WIRE024'
-    centralServerSMTPEmailAddress = 'richardson.dp+wifipi@gmail.com'
 else:
     centralServerIPAddress = '127.0.0.1'
     centralServerPort = 50000
