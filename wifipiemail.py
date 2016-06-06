@@ -2,11 +2,12 @@ import smtplib
 import credentials
 server = smtplib.SMTP('smtp.gmail.com', 587)
 
-server.ehlo()
-server.starttls()
-server.ehlo()
+def connect():
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
 
-server.login(credentials.email0, credentials.password0)
+    server.login(credentials.email0, credentials.password0)
 
 
 def send_message(msg):
