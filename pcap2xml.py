@@ -42,7 +42,7 @@ def scapyplist2xml(p, writefilename):
     tree.write(writefilename)
 
 def SniffExistingFile(f):
-    return sniff(offline=f);
+    return sniff(offline=f)
 
 # f is the pcap file
 # will save an XML at writefilename

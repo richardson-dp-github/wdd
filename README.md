@@ -22,6 +22,20 @@ This project plans to exploit certain dimensions of wireless sensing and packet 
   * To the Central Server for Analysis
   * For testing the initial prototype, an e-mail will be sent
 
+### Setting up the individual agent (eg Raspberry Pi)
+
+* Physical Connections
+  * Connect via USB: mouse, Alfa Card, keyboard,
+* Download the software/git package
+* Terminal
+  * sudo apt-get install aircrack-ng
+  * sudo airmon-ng
+  * sudo airmon-ng check
+  * sudo airmon-ng kill
+  * sudo airmon-ng start wlan0
+  * iwconfig
+    * to confirm that mon0 is up in Mode:Monitor
+
 ### Analyzing Packets
 
 * Packets will be saved to a database on the central server.
