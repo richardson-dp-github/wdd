@@ -22,6 +22,9 @@ from email.mime.text import MIMEText
 # centralServerHost = ''
 # centralServerPort = ''
 
+def connectToTheEmailServer():
+    wifipiemail.connect()
+
 # Connect to the Central Server
 def connectToTheCentralServer():
 
@@ -151,6 +154,8 @@ def PacketHandler(pkt):
 
 def test_PacketHandler():
     sniff(prn = PacketHandler, offline='capture1-05.cap')
+
+connectToTheEmailServer()
 
 test_PacketHandler()
 
