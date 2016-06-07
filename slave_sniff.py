@@ -8,6 +8,10 @@ import socket
 import sys, errno
 import time
 import wifipiemail
+import xml.etree.ElementTree as ET #for XML conversion
+from uuid import getnode as get_mac
+import datetime
+from email.mime.text import MIMEText
 
 # samplePeriod = wifiri_sysconfig.initialPeriodInSeconds
 
@@ -84,6 +88,48 @@ def concludeConnection():
 SSID_list = []
 SSID_list.append('2WIRE024')
 
+def packet2xml(p):
+    root = ET.Element("Packet")
+
+    # Append the Node ID as well
+    nodeID = ET.SubElement(root,"nodeID")
+    nodeID.text = str(get_mac())
+
+    packettype1 = ET.SubElement(root, "Type")
+    packettype1.text = str(p.type)
+
+    packetsubtype1 = ET.SubElement(root, "Subtype")
+    packetsubtype1.text = str(p.subtype)
+
+    time1 = ET.SubElement(root,"Time")
+    time1.text = str(p.time)
+    addr1 = ET.SubElement(root,"Addr1")
+    addr1.text = str(p.addr1)
+    addr2 = ET.SubElement(root,"Addr2")
+    addr2.text = str(p.addr2)
+    info1 = ET.SubElement(root,"SSID")
+    info1.text = str(p.info)
+
+    # tree = ET.ElementTree(root)
+
+    return root
+
+    # tree.write(writefilename)
+
+def constructMessage(pkt):
+    msg = MIMEText(ET.tostring(packet2xml(pkt)))
+    msg['Subject'] = 'Target SSID Detected'
+    msg['From'] = 'WiFiPi System Node ' + str(get_mac())
+    msg['To'] = 'You'
+    return msg.as_string()
+
+
+
+def constructSubject(pkt):
+    return 'SSID Detected'
+
+
+
 def PacketHandler(pkt):
 
   typeManagementFrame = 0
@@ -94,14 +140,23 @@ def PacketHandler(pkt):
   if pkt.haslayer(Dot11):
     if (pkt.type == typeManagementFrame and (pkt.subtype in [subtypeAssociationRequest, subtypeProbeRequest])):
       if pkt.info in SSID_list:
-        print "AP MAC: %s with SSID: %s [%s %s]" %(pkt.addr1, pkt.info, pkt.type, pkt.subtype)
+        # print "AP MAC: %s with SSID: %s [%s %s]" %(pkt.addr1, pkt.info, pkt.type, pkt.subtype)
         # wifipiemail.send_message('2wire024 detected: ' + pkt.addr1 + '|' + pkt.addr2 + '|' + pkt.info)
-        print 'SSID of interest detected: ' + pkt.addr1 + '->' + pkt.addr2 + '|' + pkt.info
+        # print 'SSID of interest detected: ' + pkt.addr1 + '->' + pkt.addr2 + '|' + pkt.info
+        print '=======BEGIN MESSAGE======'
+        print constructMessage(pkt)
+        if True:
+            wifipiemail.send_message(constructMessage(pkt))
+        print '=======END MESSAGE========'
+
+def test_PacketHandler():
+    sniff(prn = PacketHandler, offline='capture1-05.cap')
+
+test_PacketHandler()
 
 
-# sniff(prn = PacketHandler, offline='capture1-05.cap')
 
-sniff(prn = PacketHandler)
+# sniff(prn = PacketHandler)
 
 
 # Adapted from https://gist.github.com/securitytube/5291959

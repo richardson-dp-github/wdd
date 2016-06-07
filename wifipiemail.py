@@ -6,15 +6,23 @@ def connect():
     server.ehlo()
     server.starttls()
     server.ehlo()
-
     server.login(credentials.email0, credentials.password0)
 
 
 def send_message(msg):
     try:
+        connect()
         server.sendmail(credentials.email0, credentials.email0, msg)
+        server.close()
     except:
         print 'Sending the Message Failed'
+
+
+
+
+
+
+
 # This was done with the help of https://en.wikibooks.org/wiki/Python_Programming/Email
 
 
