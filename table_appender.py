@@ -2,7 +2,7 @@
 # All channels were modeled via Wireshark and a Wi-Pi put into monitor mode via aircrack-ng
 # Probe Requests are broadcast, so there is no indication of whether or not the Wi-Pi was successfully put in monitor mode
 
-<<<<<<< HEAD
+
 import random, datetime, hashlib, csv
 from scapy.all import *
 import binascii
@@ -211,12 +211,12 @@ class AccessPoint:
         return self.SSIDHash.hexdigest()
 
 
-=======
-import random, datetime
 
 
 
->>>>>>> origin/master
+
+
+
 class WiFiEmitter_DirectToDatabase:
 
     SSIDPool = ['2WIRE024','Dunkin Guest','Panera','DubPub','Fly Dayton Public Wifi','Dublin Airport Free Wifi','prg.aero-free','WiFi2GO_007','prague','Hajnovka wifi','lavdis','Salanda','InternetAcko','MUNI','Hotel International Free']
@@ -231,7 +231,7 @@ class WiFiEmitter_DirectToDatabase:
         k = random.randint(3,6)
         self.savedSSIDProfiles = random.sample(self.SSIDPool,k)
 
-<<<<<<< HEAD
+
 
     def assignRandomMACAddress(self):
         self.MAC = ''
@@ -261,8 +261,7 @@ class WiFiEmitter:
     def addPreferredAccessPoint(self, SSID):
         self.savedSSIDProfiles.append(SSID)
 
-=======
->>>>>>> origin/master
+
     def assignRandomMACAddress(self):
         self.MAC = ''
         for i in range(0, 6):
@@ -272,10 +271,8 @@ class WiFiEmitter:
                 self.MAC = self.MAC + ':'
 
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/master
+
     def probe(self):
         tableEntries = []
         for i in self.savedSSIDProfiles:
@@ -287,7 +284,6 @@ class WiFiEmitterSet:
     def __init__(self, numEmitters):
         self.numEmitters = numEmitters
         self.emitters = []
-<<<<<<< HEAD
         for i in range(0,numEmitters):
             self.emitters.append(WiFiEmitter(40))
         for j in self.emitters:
@@ -329,9 +325,7 @@ class Scenario:
 #test
 
 ProbeRequestPCAPEntry('aabbccddeeff','testssid').generatePCAP('packets.pcap')
-=======
-        self.emitters.append(WiFiEmitter_DirectToDatabase)
 
 
 
->>>>>>> origin/master
+
