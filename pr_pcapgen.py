@@ -3,7 +3,9 @@
 # Probe Requests are broadcast, so there is no indication of whether or not the Wi-Pi was successfully put in monitor mode
 
 
-import random, datetime, hashlib, csv
+import random
+# import datetime
+import hashlib, csv
 from scapy.all import *
 import binascii
 
@@ -101,6 +103,10 @@ class ProbeRequestPCAPEntry():
                             'XX XX XX XX'   #Frame Size (little endian)
                             'YY YY YY YY')  #Frame Size (little endian)
 
+        self.pcap_packet_header_p1of2 =   ('AA 77 9F 47'
+                            '90 A2 04 00')
+
+
         self.probe_request_frame_header = ('00'                              # Header revision
                                   '00'                              # Header pad
                                   '12 00'                           # Header length
@@ -144,6 +150,18 @@ class ProbeRequestPCAPEntry():
                                   '00 00'                           # HT Extended Capabilities
                                   '00 00 00 00'                     # Transmit Beam Forming (TxBF) Capabilities
                                   '00')                             # Antenna capabilities
+    def probe_request_frame_header_length(self):
+        return self.getByteLength(self.probe_request_frame_header)
+
+    def probe_request_frame_header_length_hex_for_pcap_entry(self):
+        pcap_len = self.getByteLength(self.probe_request_frame_header)
+        hex_str = "%08x"%pcap_len
+        reverse_hex_str = hex_str[6:] + hex_str[4:6] + hex_str[2:4] + hex_str[:2]# four bytes long
+        return reverse_hex_str
+
+    def get_pcapentry(self):
+        return ''.join(self.pcap_packet_header_p1of2 + self.probe_request_frame_header_length_hex_for_pcap_entry() + self.probe_request_frame_header)
+
 
 
     def getByteLength(self,str1):
@@ -170,6 +188,89 @@ class ProbeRequestPCAPEntry():
     #Splits the string into a list of tokens every n characters
     def splitN(str1,n):
         return [str1[start:start+n] for start in range(0, len(str1), n)]
+
+
+class ProbeRequest:
+    # the plan is to keep everything in hex, and then create get and set to translate in and out
+    # This makes the most sense, since this is closely related to what the packets actually look like.
+
+    def __init__(self):
+        self.headerrevision = '00'
+        self.headerpad = '00'
+        self.headerlength = 'aa 00'
+        self.presentflags = '2e 48 00 00'
+        self.flags = '00'
+        self.datarate = '02'
+        self.channelfrequency = '6c 09'
+        self.channelflags = 'a0 00'
+        self.ssisignal = 'db'
+        self.antenna = '01'
+        self.rxflags = '00'
+        self.typesubtype = '0040' #type/subtype probe request
+        self.duration = '0000'
+        self.receiveraddress = 'ff ff ff ff ff ff'
+        # self.destinationaddress = 'ff ff ff ff ff ff'
+        self.transmitteraddress = 'e4 90 7e cb 0f 07'
+        self.bssid = 'ff ff ff ff ff ff'
+        self.sequenceandfragnumber = '80 d2' # 0=frag number 3368=sequence number
+        self.tagssidparameterset = '00'
+        self.tagssidparametersetlength = '06'
+        self.tagssidparametersetitem0 = '70 72 61 67 75 65'  #default is prague
+        self.tagsupportedrates = '01 04 02 04 0b 16'
+        self.tagextendedsupportedrates = '32 08 0c 12 18 24 30 48 60 6c'
+        self.taghtcapabilities = '2d 1a 6e 01  03 ff 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00'
+
+    # Reset the transmitter address
+    #   This is a simple operation because this action will not change the size of the packet.
+    def set_transmitter_address(self, mac_addr):
+
+        self.transmitteraddress = mac_addr
+
+    # set the ssid in a string format
+    #   It requires the size of the tag to be reset as well as the size of the entire packet.
+    def set_ssid_ascii(self, ssidinascii):
+        #possible error checking for later might include limiting the length here
+        self.tagssidparametersetitem0 = binascii.b2a_hex(ssidinascii)
+        self.tagssidparameterlength = format(len(ssidinascii),'02x')
+        self.recalculate_and_reset_headerlength()
+
+    def recalculate_and_reset_headerlength(self):
+        headerlength = self.get_header()
+        hex_str = format(len(headerlength),'04x')
+        reverse_hex_str = hex_str[2:4] + hex_str[:2]
+        self.headerlength = reverse_hex_str
+
+    def get_ssid(self):
+        return binascii.a2b_hex(self.tagssidparametersetitem0.replace(" ",""))
+
+
+    def get_header(self):
+        return (''.join(self.headerrevision +
+                       self.headerpad +
+                       self.headerlength +
+                       self.presentflags +
+                       self.flags +
+                       self.datarate +
+                       self.channelfrequency +
+                       self.channelflags +
+                       self.ssisignal +
+                       self.antenna +
+                       self.rxflags +
+                       self.typesubtype +
+                       self.duration +
+                       self.receiveraddress +
+                       self.transmitteraddress +
+                       self.bssid +
+                       self.sequenceandfragnumber +
+                       self.tagsupportedrates +
+                       self.tagextendedsupportedrates +
+                       self.taghtcapabilities)).replace(' ','')
+
+
+
+
+
+
 
 
 
@@ -323,8 +424,6 @@ class Scenario:
 
 
 #test
-
-ProbeRequestPCAPEntry('aabbccddeeff','testssid').generatePCAP('packets.pcap')
 
 
 
