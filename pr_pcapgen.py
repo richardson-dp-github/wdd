@@ -87,69 +87,17 @@ class PcapWriter():
 class ProbeRequestPCAPEntry():
 
         #pcap packet header that must preface every packet
-    def __init__(self,txmtr_address,ssid):
+    def __init__(self,probe_request):
 
-        #Global header for pcap 2.4
-        self.pcap_global_header =   ('D4 C3 B2 A1'
-                            '02 00'         #File format major revision (i.e. pcap <2>.4)
-                            '04 00'         #File format minor revision (i.e. pcap 2.<4>)
-                            '00 00 00 00'
-                            '00 00 00 00'
-                            'FF FF 00 00'
-                            '7F 00 00 00')
+        self.probe_request = probe_request
 
-        self.pcap_packet_header =   ('AA 77 9F 47'
-                            '90 A2 04 00'
-                            'XX XX XX XX'   #Frame Size (little endian)
-                            'YY YY YY YY')  #Frame Size (little endian)
+        self.probe_request_frame_header = self.probe_request.get_header()
 
         self.pcap_packet_header_p1of2 =   ('AA 77 9F 47'
                             '90 A2 04 00')
 
 
-        self.probe_request_frame_header = ('00'                              # Header revision
-                                  '00'                              # Header pad
-                                  '12 00'                           # Header length
-                                  '2e 48 00 00'                     # Present flags
 
-                                  '00'                              # Flags
-                                  '02'                              # Data Rate (1.0 Mb/s)
-                                  '6c 09'                           # Channel frequency
-                                  'a0 00'                           # Channel type: 802.11b
-                                  'd7'                              # SSI signal
-                                  '01'                              # Antenna
-
-                                  '00 00'                           # RX Flags
-                                  '40'                              # Type/Subtype: Probe Request
-                                  '00'                              # Flags
-                                  '00 00'                           # Duration
-                                  'ff ff ff ff ff ff' +             # Receiver/Destination Address (broadcast)
-                                  txmtr_address +                   # Transmitter Address
-                                  'ff ff ff ff ff ff'               # BSS ID
-                                  'b0 ac'                           # sequence number
-                                  '00' +                              # tag number
-                                  '08' +                              # tag length
-                                  # str(binascii.b2a_hex(len(ssid))) +
-                                   '32 57 49 52 45 30 32 34'         # SSID parameter set
-                                  #str(binascii.a2b_hex(ssid)) +
-                                  '01'                              # tag number: supported rates
-                                  '04'                              # tag length
-                                  '02'                              # Supported Rates: 1 (0x02)
-                                  '04'                              # Supported Rates: 2 (0x04)
-                                  '0b'                              # Supported rates: 5.5 (0x0b)
-                                  '16'                              # Supported Rates: 11 (0x16)
-                                  '32 08 0c 12 18 24 30 48 60 6c'   # Tag: Extended Supported Rates 6, 9, 12, 18, 24, 36,
-                                                                    #      48, 54 [Mbit/sec]
-                                  '2d'                              # Tag Number: HT Capabilities
-                                  '1a'                              # Tag length
-                                  '6e 01'                           # HT Capabilities Info
-                                  '03'                              # A-MPDU Parameters: 0x03
-                                  'ff 00 00 00  00 00 00 00'        # Rx Modulation and Coding Scheme (One bit per
-                                                                    #      modulation): 1 spatial stream
-                                  '00 00 00 00  00 00 00 00'        # (continued)
-                                  '00 00'                           # HT Extended Capabilities
-                                  '00 00 00 00'                     # Transmit Beam Forming (TxBF) Capabilities
-                                  '00')                             # Antenna capabilities
     def probe_request_frame_header_length(self):
         return self.getByteLength(self.probe_request_frame_header)
 
@@ -157,12 +105,10 @@ class ProbeRequestPCAPEntry():
         pcap_len = self.getByteLength(self.probe_request_frame_header)
         hex_str = "%08x"%pcap_len
         reverse_hex_str = hex_str[6:] + hex_str[4:6] + hex_str[2:4] + hex_str[:2]# four bytes long
-        return reverse_hex_str
+        return 2*reverse_hex_str
 
     def get_pcapentry(self):
         return ''.join(self.pcap_packet_header_p1of2 + self.probe_request_frame_header_length_hex_for_pcap_entry() + self.probe_request_frame_header)
-
-
 
     def getByteLength(self,str1):
         return len(''.join(str1.split())) / 2
@@ -173,22 +119,30 @@ class ProbeRequestPCAPEntry():
         bitout = open(filename, 'wb')
         bitout.write(bytes)
 
-    def generatePCAP(self,pcapfile):
 
+class PCAPFile:
+    def __init__(self):
+        self.pcap_entries = []
+        self.pcap_global_header =   ('D4 C3 B2 A1'
+                        '02 00'         #File format major revision (i.e. pcap <2>.4)
+                        '04 00'         #File format minor revision (i.e. pcap 2.<4>)
+                        '00 00 00 00'
+                        '00 00 00 00'
+                        'FF FF 00 00'
+                        '7F 00 00 00')  #7F instead of 69 for 802.11 and rather than 01 for ethernet
 
-        pcap_len = self.getByteLength(self.probe_request_frame_header)
-        hex_str = "%08x"%pcap_len
-        reverse_hex_str = hex_str[6:] + hex_str[4:6] + hex_str[2:4] + hex_str[:2]
-        pcaph = self.pcap_packet_header.replace('XX XX XX XX',reverse_hex_str)
-        pcaph = pcaph.replace('YY YY YY YY',reverse_hex_str)
+    #in hex form
+    def addPacket(self, p):
+        self.pcap_entries.append(p.get_pcapentry())
 
-        bytestring = self.pcap_global_header + pcaph + self.probe_request_frame_header
-        self.writeByteStringToFile(bytestring, pcapfile)
+    def generatePCAP(self, pcapfile):
+        self.writeByteStringToFile(self.pcap_global_header + ''.join(self.pcap_entries), pcapfile)
 
-    #Splits the string into a list of tokens every n characters
-    def splitN(str1,n):
-        return [str1[start:start+n] for start in range(0, len(str1), n)]
-
+    def writeByteStringToFile(self,bytestring, filename):
+        bytelist = bytestring.split()
+        bytes = binascii.a2b_hex(''.join(bytelist))
+        bitout = open(filename, 'wb')
+        bitout.write(bytes)
 
 class ProbeRequest:
     # the plan is to keep everything in hex, and then create get and set to translate in and out
@@ -197,7 +151,7 @@ class ProbeRequest:
     def __init__(self):
         self.headerrevision = '00'
         self.headerpad = '00'
-        self.headerlength = 'aa 00'
+        self.headerlength = '12 00'
         self.presentflags = '2e 48 00 00'
         self.flags = '00'
         self.datarate = '02'
@@ -205,12 +159,12 @@ class ProbeRequest:
         self.channelflags = 'a0 00'
         self.ssisignal = 'db'
         self.antenna = '01'
-        self.rxflags = '00'
-        self.typesubtype = '0040' #type/subtype probe request
+        self.rxflags = '00 00'
+        self.typesubtype = '40 00' #type/subtype probe request
         self.duration = '0000'
         self.receiveraddress = 'ff ff ff ff ff ff'
         # self.destinationaddress = 'ff ff ff ff ff ff'
-        self.transmitteraddress = 'e4 90 7e cb 0f 07'
+        self.transmitteraddress = 'aa bb cc dd ee ff'
         self.bssid = 'ff ff ff ff ff ff'
         self.sequenceandfragnumber = '80 d2' # 0=frag number 3368=sequence number
         self.tagssidparameterset = '00'
@@ -219,6 +173,19 @@ class ProbeRequest:
         self.tagsupportedrates = '01 04 02 04 0b 16'
         self.tagextendedsupportedrates = '32 08 0c 12 18 24 30 48 60 6c'
         self.taghtcapabilities = '2d 1a 6e 01  03 ff 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00'
+
+        #revision
+        # self.headerrevision=''
+        # self.headerpad=''
+        # self.headerlength=''
+        # self.presentflags=''
+        # self.flags=''
+        # self.datarate = ''
+        # self.channelfrequency = ''
+        # self.channelflags = ''
+        # self.ssisignal = ''
+        # self.antenna = ''
+        # self.rxflags = ''
 
     # Reset the transmitter address
     #   This is a simple operation because this action will not change the size of the packet.
@@ -231,14 +198,9 @@ class ProbeRequest:
     def set_ssid_ascii(self, ssidinascii):
         #possible error checking for later might include limiting the length here
         self.tagssidparametersetitem0 = binascii.b2a_hex(ssidinascii)
-        self.tagssidparameterlength = format(len(ssidinascii),'02x')
-        self.recalculate_and_reset_headerlength()
+        self.tagssidparametersetlength = format(len(ssidinascii),'02x')
+        # self.recalculate_and_reset_headerlength()
 
-    def recalculate_and_reset_headerlength(self):
-        headerlength = self.get_header()
-        hex_str = format(len(headerlength),'04x')
-        reverse_hex_str = hex_str[2:4] + hex_str[:2]
-        self.headerlength = reverse_hex_str
 
     def get_ssid(self):
         return binascii.a2b_hex(self.tagssidparametersetitem0.replace(" ",""))
@@ -262,18 +224,12 @@ class ProbeRequest:
                        self.transmitteraddress +
                        self.bssid +
                        self.sequenceandfragnumber +
+                       self.tagssidparameterset +
+                       self.tagssidparametersetlength +
+                       self.tagssidparametersetitem0 +
                        self.tagsupportedrates +
                        self.tagextendedsupportedrates +
                        self.taghtcapabilities)).replace(' ','')
-
-
-
-
-
-
-
-
-
 
 class AccessPoint:
     SSID = ''
