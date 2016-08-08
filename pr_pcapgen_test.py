@@ -1,5 +1,5 @@
 import pr_pcapgen as t
-
+'''
 p = t.ProbeRequest()
 
 print p.get_header()
@@ -30,6 +30,7 @@ pr0 = t.ProbeRequestPCAPEntry(p)
 pf0 = t.PCAPFile()
 
 pf0.addPacket(pr0)
+pf0.addPacket(pr0)
 
 
 x = []
@@ -42,6 +43,17 @@ print pf0.pcap_entries
 
 pf0.generatePCAP('test.pcap')
 
+
 # reverse_hex_str = hex_str[6:] + hex_str[4:6] + hex_str[2:4] + hex_str[:2]
 reverse_hex_str = hex_str[2:4] + hex_str[:2]
 print 'reverse hex string = ' + reverse_hex_str
+'''
+
+
+s = t.ScenarioGen1()
+
+s.run_probes()
+
+
+
+s.save_file()

@@ -97,7 +97,6 @@ class ProbeRequestPCAPEntry():
                             '90 A2 04 00')
 
 
-
     def probe_request_frame_header_length(self):
         return self.getByteLength(self.probe_request_frame_header)
 
@@ -174,18 +173,7 @@ class ProbeRequest:
         self.tagextendedsupportedrates = '32 08 0c 12 18 24 30 48 60 6c'
         self.taghtcapabilities = '2d 1a 6e 01  03 ff 00 00 00 00 00 00  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00'
 
-        #revision
-        # self.headerrevision=''
-        # self.headerpad=''
-        # self.headerlength=''
-        # self.presentflags=''
-        # self.flags=''
-        # self.datarate = ''
-        # self.channelfrequency = ''
-        # self.channelflags = ''
-        # self.ssisignal = ''
-        # self.antenna = ''
-        # self.rxflags = ''
+
 
     # Reset the transmitter address
     #   This is a simple operation because this action will not change the size of the packet.
@@ -327,9 +315,6 @@ class WiFiEmitter:
             if i < 6 - 1:
                 self.MAC = self.MAC + ':'
 
-
-
-
     def probe(self):
         tableEntries = []
         for i in self.savedSSIDProfiles:
@@ -347,13 +332,30 @@ class WiFiEmitterSet:
             j.addPreferredAccessPoint("ap1")
             j.addPreferredAccessPoint("ap2")
 
+
+class ScenarioGen1:
+    def __init__(self, numEmitters=1):
+        self.ws = WiFiEmitterSet(numEmitters)
+        self.buf = scapy.plist.PacketList()
+        self.f = PCAPFile()
+
+    def run_probes(self):
+        for emi in self.ws.emitters:
+            for p in emi.savedSSIDProfiles:
+                pr = ProbeRequest()
+                pr.set_ssid_ascii(p)
+                pre = ProbeRequestPCAPEntry(pr)
+                self.f.addPacket(pre)
+
+    def save_file(self):
+        self.f.generatePCAP('test1.pcap')
+
+
 class Scenario:
 
     def __init__(self, numEmitters=1):
         self.ws = WiFiEmitterSet(numEmitters)
         self.buf = scapy.plist.PacketList()
-
-
 
     # copied from online
     def writeByteStringToFile(self, bytestring, filename):
