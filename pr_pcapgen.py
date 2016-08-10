@@ -231,17 +231,17 @@ class AccessPoint:
     def generateSSID(self):
         self.SSID = self.rtnRandomSSID(True)
 
-    def rtnRandomSSID(self,common=True):
+    def rtnRandomSSID(self, common=True):
         CommonSSIDPool = ['xfinitiwifi', 'linksys', 'BTWiFi-with-FON', 'NETGEAR', 'dlink', 'Ziggo', 'BTWifi-X', 'default', 'FreeWiFi', 'hpsetup']
         RareSSIDPool_base = ['myqwest????','home-????','belkin.???.guests'] # '?' will be replaced by digits 0-9
         if common:
-            SSID = random.choice(CommonSSIDPool)
+            SSID_ = random.choice(CommonSSIDPool)
         if not common:
-            SSID = random.choice(RareSSIDPool_base)
-            for char in SSID:
+            SSID_ = random.choice(RareSSIDPool_base)
+            for char in SSID_:
                 if (char == '?'):
-                    SSID=SSID.replace('?',str(random.randint(0,9)),1)
-        return SSID
+                    SSID_=SSID_.replace('?',str(random.randint(0,9)),1)
+        return SSID_
 
 
     def assignRandomMACAddress(self):
@@ -294,10 +294,10 @@ class WiFiEmitter_DirectToDatabase:
 
 class WiFiEmitter:
 
-    def __init__(self, freqInSeconds):
+    def __init__(self, freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff"):
         self.savedSSIDProfiles = []
-        self.freqInSeconds = 40
-        self.MAC = "e4:90:7e:cb:0f:07"  #my phone
+        self.freqInSeconds = freqInSeconds
+        self.MAC = MAC
 
     def defineSSIDProfile(self):
         k = random.randint(3,6)
@@ -306,6 +306,17 @@ class WiFiEmitter:
     def addPreferredAccessPoint(self, SSID):
         self.savedSSIDProfiles.append(SSID)
 
+    def rtnRandomSSID(self, common=True):
+        CommonSSIDPool = ['xfinitiwifi', 'linksys', 'BTWiFi-with-FON', 'NETGEAR', 'dlink', 'Ziggo', 'BTWifi-X', 'default', 'FreeWiFi', 'hpsetup']
+        RareSSIDPool_base = ['myqwest????','home-????','belkin.???.guests'] # '?' will be replaced by digits 0-9
+        if common:
+            SSID_ = random.choice(CommonSSIDPool)
+        if not common:
+            SSID_ = random.choice(RareSSIDPool_base)
+            for char in SSID_:
+                if (char == '?'):
+                    SSID_=SSID_.replace('?',str(random.randint(0,9)),1)
+        return SSID_
 
     def assignRandomMACAddress(self):
         self.MAC = ''
@@ -329,12 +340,14 @@ class WiFiEmitterSet:
         for i in range(0,numEmitters):
             self.emitters.append(WiFiEmitter(40))
         for j in self.emitters:
-            j.addPreferredAccessPoint("ap1")
-            j.addPreferredAccessPoint("ap2")
+            for k in range (0,1):
+                j.addPreferredAccessPoint(j.rtnRandomSSID())
+                j.addPreferredAccessPoint(j.rtnRandomSSID(False))
+
 
 
 class ScenarioGen1:
-    def __init__(self, numEmitters=1):
+    def __init__(self, numEmitters=12):
         self.ws = WiFiEmitterSet(numEmitters)
         self.buf = scapy.plist.PacketList()
         self.f = PCAPFile()

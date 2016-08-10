@@ -2,14 +2,18 @@ from cassandra.cluster import Cluster
 from scapy.all import *
 import uuid
 import time
-
-cluster = Cluster(['192.168.1.106','192.168.1.105'])
-
-session = cluster.connect()
+import pr_pcapgen as prgen
+import os
 
 # session.execute("CREATE KEYSPACE tutorialspoint WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 2}")
 
-session.execute("USE test0")
+#For me, Cassandra's path is ~/Documents/thesis/apache-cassandra-3.7/bin/
+def startcassandra(cassandraspath="~/Documents/thesis/apache-cassandra-3.7/bin/"):
+    cmd = "cd " + cassandraspath
+    os.system(cmd)
+    print "Executing Command" + cmd
+    os.system("./cassandra")
+
 
 def creader():
     t1 = time.time()
@@ -19,15 +23,35 @@ def creader():
         print r
     return t2-t1
 
+def ccleartable():
+    session.execute("delete from probes where 1;")
 
 def cwriter(plist):
     for p in plist:
         session.execute('insert into probes (prb_id, prb_time, prb_addr1, prb_ssid) values (%s, %s, %s, %s);',(uuid.uuid1(), str(p.time), p.addr2, p.info))
 
+s = prgen.ScenarioGen1(80)
+s.run_probes()
+s.save_file()
 
-cwriter(sniff(offline='test1.pcap'))
-print creader()
+try:
+   startcassandra()
+except:
+   print "can't start cassandra"
+   print e
 
+try:
+   cluster = Cluster(['192.168.1.106','192.168.1.105'])
+   session = cluster.connect()
+   session.execute("USE test0")
+except:
+   print "Can't instantiate the cluster.  Cassandra is probably not running..."
+
+try:
+    cwriter(sniff(offline='test1.pcap'))
+    print creader()
+except:
+    print "Can't write to the database from the pcap file.  Cassandra is probably not running..."
 
 
 
