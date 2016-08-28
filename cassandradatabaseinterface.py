@@ -15,7 +15,7 @@ def startcassandra(cassandraspath="~/Documents/thesis/apache-cassandra-3.7/bin/"
     os.system("./cassandra")
 
 
-def creader():
+def creader(session):
     t1 = time.time()
     rows = session.execute("select * from probes;")
     t2 = time.time()
@@ -23,17 +23,14 @@ def creader():
         print r
     return t2-t1
 
-def ccleartable():
+def ccleartable(session):
     session.execute("delete from probes where 1;")
 
-def cwriter(plist):
+def cwriter(plist, session):
     for p in plist:
         session.execute('insert into probes (prb_id, prb_time, prb_addr1, prb_ssid) values (%s, %s, %s, %s);',(uuid.uuid1(), str(p.time), p.addr2, p.info))
 
-s = prgen.ScenarioGen1(80)
-s.run_probes()
-s.save_file()
-
+'''
 try:
    startcassandra()
 except:
@@ -47,11 +44,18 @@ try:
 except:
    print "Can't instantiate the cluster.  Cassandra is probably not running..."
 
+
 try:
-    cwriter(sniff(offline='test1.pcap'))
-    print creader()
+    tlist = []
+    for i in range(0,100,10):
+        s = prgen.ScenarioGen1(i)
+        s.run_probes()
+        s.save_file()
+        cwriter(sniff(offline='test1.pcap'))
+        tlist.append(creader())
+    print str(tlist)
 except:
     print "Can't write to the database from the pcap file.  Cassandra is probably not running..."
-
+'''
 
 
