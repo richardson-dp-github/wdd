@@ -7,6 +7,7 @@ import time
 import pr_pcapgen as prgen
 import os
 import ntplib
+import csv
 
 # session.execute("CREATE KEYSPACE tutorialspoint WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 2}")
 '''
@@ -29,7 +30,7 @@ def cwriter(plist):
 def startwriting(timeconstant):
     try:
         tlist = []
-        for i in range(0,100,10):
+        for i in range(0,1000,100):
             print "running iteration " + str(i) + " at " + str(time.time())
             try:
                 s = prgen.ScenarioGen1(i)
@@ -38,11 +39,21 @@ def startwriting(timeconstant):
             except:
                 print "Not able to generate the scenario."
             try:
+                time0 = time.time()
                 cwriter(sniff(offline='test1.pcap'))
+                time1 = time.time()
             except:
+                time0 = 999
+                time1 = 999
                 print "program was not able to write the data from the file"
             #wait for the time constant, this will give the reader some time to catch up just in case
             time.sleep(timeconstant)
+            try:
+                with open('output_writer.csv','a') as csvfile:
+                    owriter = csv.writer(csvfile,delimiter = ' ', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+                    owriter.writerow([time0] + [time1] + [i])
+            except:
+                print "couldn't write to file"
             try:
                 ccleartable()
             except:
@@ -80,7 +91,11 @@ except:
     print "Couldn't run the pings"
 
 try:
+    open('output_writer.csv', 'w').close()
     startwriting(timeconstant=5)
 except:
     print "Oh no!  Something must be wrong."
     print e
+
+
+
