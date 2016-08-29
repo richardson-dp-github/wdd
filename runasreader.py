@@ -53,7 +53,7 @@ for i in range(1,3000):
             limit_counter[c[2]] += 1
             if (c[2] in acceptable_values) and limit_counter[c[2]]<max_returns:
                 with open(filename,'a') as csvfile:
-                    owriter = csv.writer(csvfile,delimiter = ' ', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+                    owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
                     owriter.writerow(c)
         except:
             print "couldn't write to file"
