@@ -6,6 +6,7 @@ import uuid
 import time
 import pr_pcapgen as prgen
 import os
+import ntplib
 
 # session.execute("CREATE KEYSPACE tutorialspoint WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 2}")
 '''
@@ -28,8 +29,8 @@ def cwriter(plist):
 def startwriting(timeconstant):
     try:
         tlist = []
-        for i in range(1,100,10):
-            print "running iteration " + str(i)
+        for i in range(0,100,10):
+            print "running iteration " + str(i) + " at " + str(time.time())
             try:
                 s = prgen.ScenarioGen1(i)
                 s.run_probes()
@@ -51,6 +52,7 @@ def startwriting(timeconstant):
                     ccleartable()
                 except:
                     print "tried twice...not able to clear the data in the table"
+            time.sleep(timeconstant)
         # print str(tlist)
     except:
         print "Can't write to the database from the pcap file.  Cassandra is probably not running..."
@@ -63,7 +65,22 @@ except:
     print "Can't instantiate the cluster.  Cassandra is probably not running..."
 
 try:
-    startwriting(timeconstant=1)
+    os.system("ping -c 4 192.168.1.105")
+    os.system("ping -c 4 192.168.1.106")
+    os.system("ping -c 4 192.168.1.107")
+
+    c=ntplib.NTPClient()
+    response0 = c.request('192.168.1.105',version=3)
+    response1 = c.request('192.168.1.106',version=3)
+    response2 = c.request('192.168.1.107',version=3)
+    print response0.offset
+    print response1.offset
+    print response2.offset
+except:
+    print "Couldn't run the pings"
+
+try:
+    startwriting(timeconstant=5)
 except:
     print "Oh no!  Something must be wrong."
     print e
