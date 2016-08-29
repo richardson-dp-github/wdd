@@ -6,18 +6,13 @@ import pr_pcapgen as prgen
 import os
 import csv
 from collections import Counter
+import config_benchmark
 
 verbose = True
 
-acceptable_values = []
+acceptable_values = config_benchmark.acceptable_values
 
 max_returns = 3
-
-# Set what are acceptable values for the row count
-#  This has to be coordinated with the writer
-for i in range(0,1000,100):
-    if not i==0:
-        acceptable_values.append(i)
 
 
 def creader():
@@ -48,7 +43,7 @@ open(filename, 'w').close()
 
 limit_counter = Counter() #limit to n
 
-for i in range(1,5000):
+for i in range(1,3000):
     time.sleep(0)
     try:
         c = creader()

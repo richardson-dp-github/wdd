@@ -340,11 +340,9 @@ class WiFiEmitterSet:
         for i in range(0,numEmitters):
             self.emitters.append(WiFiEmitter(40))
         for j in self.emitters:
-            for k in range (0,1):
+            for k in range(0,1):
                 j.addPreferredAccessPoint(j.rtnRandomSSID())
-                j.addPreferredAccessPoint(j.rtnRandomSSID(False))
-
-
+                # j.addPreferredAccessPoint(j.rtnRandomSSID(False))
 
 class ScenarioGen1:
     def __init__(self, numEmitters=12):
@@ -362,7 +360,6 @@ class ScenarioGen1:
 
     def save_file(self):
         self.f.generatePCAP('test1.pcap')
-
 
 class Scenario:
 
