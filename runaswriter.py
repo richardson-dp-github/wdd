@@ -50,7 +50,7 @@ def startwriting(timeconstant):
             time.sleep(timeconstant)
             try:
                 with open('output_writer.csv','a') as csvfile:
-                    owriter = csv.writer(csvfile,delimiter = ' ', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+                    owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
                     owriter.writerow([time0] + [time1] + [i])
             except:
                 print "couldn't write to file"
@@ -92,6 +92,9 @@ except:
 
 try:
     open('output_writer.csv', 'w').close()
+    with open('output_writer.csv','a') as csvfile:
+        owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+        owriter.writerow(['timebeforewrite'] + ['timeafterwrite'] + ['datacount'])
     startwriting(timeconstant=5)
 except:
     print "Oh no!  Something must be wrong."

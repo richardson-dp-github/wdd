@@ -41,6 +41,10 @@ filename = 'output_reader.csv'
 
 open(filename, 'w').close()
 
+with open(filename,'a') as csvfile:
+    owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+    owriter.writerow('beforeread,afterread,datacount')
+
 limit_counter = Counter() #limit to n
 
 for i in range(1,3000):
