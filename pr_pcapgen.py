@@ -294,14 +294,19 @@ class WiFiEmitter_DirectToDatabase:
 
 class WiFiEmitter:
 
-    def __init__(self, freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff"):
+    def __init__(self, freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff", lat=20.1, long=20.1):
         self.savedSSIDProfiles = []
         self.freqInSeconds = freqInSeconds
         self.MAC = MAC
+        self.lat = lat
+        self.long = long
 
-    def defineSSIDProfile(self):
-        k = random.randint(3,6)
-        self.savedSSIDProfiles = random.sample(self.SSIDPool,k)
+    def defineSSIDProfile(self, common=1, rare=1):
+        for i in range(common):
+            self.savedSSIDProfiles.append(self.rtnRandomSSID(True))
+        for i in range(rare):
+            self.savedSSIDProfiles.append(self.rtnRandomSSID(False))
+
 
     def addPreferredAccessPoint(self, SSID):
         self.savedSSIDProfiles.append(SSID)
@@ -344,11 +349,36 @@ class WiFiEmitterSet:
                 j.addPreferredAccessPoint(j.rtnRandomSSID())
                 # j.addPreferredAccessPoint(j.rtnRandomSSID(False))
 
+# Emitter parameters should be a dictionary.
 class ScenarioGen1:
     def __init__(self, numEmitters=12):
         self.ws = WiFiEmitterSet(numEmitters)
         self.buf = scapy.plist.PacketList()
         self.f = PCAPFile()
+
+    def run_probes(self):
+        for emi in self.ws.emitters:
+            for p in emi.savedSSIDProfiles:
+                pr = ProbeRequest()
+                pr.set_ssid_ascii(p)
+                pre = ProbeRequestPCAPEntry(pr)
+                self.f.addPacket(pre)
+
+    def save_file(self):
+        self.f.generatePCAP('test1.pcap')
+
+
+# Emitter parameters should be a dictionary.
+class ScenarioGen2:
+    def __init__(self):
+        self.ws = WiFiEmitterSet(0)
+        self.buf = scapy.plist.PacketList()
+        self.f = PCAPFile()
+
+    def add_emitter(self, commonSSIDs=0, rareSSIDs=1):
+        e = WiFiEmitter(freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff")
+        e.defineSSIDProfile(common=commonSSIDs, rare=rareSSIDs)
+        self.ws.emitters.append(e)
 
     def run_probes(self):
         for emi in self.ws.emitters:

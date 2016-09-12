@@ -8,12 +8,15 @@ import csv
 from collections import Counter
 import config_benchmark
 
-verbose = True
+verbose = config_benchmark.verbose
 
 acceptable_values = config_benchmark.acceptable_values
 
-max_returns = 3
+max_returns = 5
 
+num_reads = 10000 #per iteration
+
+num_iterations = 1
 
 def creader():
     return creadallrowsthencount()
@@ -43,26 +46,26 @@ open(filename, 'w').close()
 
 with open(filename,'a') as csvfile:
     owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
-    owriter.writerow('beforeread,afterread,datacount')
+    owriter.writerow(['beforeread']+['afterread']+['datacount'])
 
 limit_counter = Counter() #limit to n
 
-for i in range(1,3000):
-    time.sleep(0)
-    try:
-        c = creader()
-        if verbose:
-            print c, i
+for j in range(1,num_iterations+1):
+    for i in range(1,num_reads+1):
+        time.sleep(0)
         try:
-            limit_counter[c[2]] += 1
-            if (c[2] in acceptable_values) and limit_counter[c[2]]<max_returns:
-                with open(filename,'a') as csvfile:
-                    owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
-                    owriter.writerow(c)
+            c = creader()
+            if verbose:
+                print c, i, j
+            try:
+                limit_counter[c[2]] += 1
+                if (c[2] in acceptable_values) and limit_counter[c[2]]<max_returns:
+                    with open(filename,'a') as csvfile:
+                        owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+                        owriter.writerow(c)
+            except:
+                print "couldn't write to file"
         except:
-            print "couldn't write to file"
-    except:
-        print "An error occurred while trying to read."
-
-
-print limit_counter
+            print "An error occurred while trying to read."
+    print limit_counter
+    limit_counter.clear()
