@@ -302,9 +302,9 @@ class WiFiEmitter:
         self.long = long
 
     def defineSSIDProfile(self, common=1, rare=1):
-        for i in range(common):
+        for i in range(0,common):
             self.savedSSIDProfiles.append(self.rtnRandomSSID(True))
-        for i in range(rare):
+        for i in range(0,rare):
             self.savedSSIDProfiles.append(self.rtnRandomSSID(False))
 
 
@@ -322,6 +322,7 @@ class WiFiEmitter:
                 if (char == '?'):
                     SSID_=SSID_.replace('?',str(random.randint(0,9)),1)
         return SSID_
+
 
     def assignRandomMACAddress(self):
         self.MAC = ''
@@ -368,17 +369,19 @@ class ScenarioGen1:
         self.f.generatePCAP('test1.pcap')
 
 
-# Emitter parameters should be a dictionary.
+# Create the scenario.
+# Run additional commands to create emitters
+
 class ScenarioGen2:
     def __init__(self):
-        self.ws = WiFiEmitterSet(0)
+        self.ws = []
         self.buf = scapy.plist.PacketList()
         self.f = PCAPFile()
 
-    def add_emitter(self, commonSSIDs=0, rareSSIDs=1):
-        e = WiFiEmitter(freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff")
+    def add_emitter(self, commonSSIDs=0, rareSSIDs=1, MAC="aa:bb:cc:dd:ee:ff", freqInSeconds=40):
+        e = WiFiEmitter(freqInSeconds=freqInSeconds, MAC=MAC)
         e.defineSSIDProfile(common=commonSSIDs, rare=rareSSIDs)
-        self.ws.emitters.append(e)
+        self.ws.append(e)
 
     def run_probes(self):
         for emi in self.ws.emitters:
@@ -387,6 +390,18 @@ class ScenarioGen2:
                 pr.set_ssid_ascii(p)
                 pre = ProbeRequestPCAPEntry(pr)
                 self.f.addPacket(pre)
+
+    def createCSV(self, filename='test1.csv', max_time=50):
+        with open(filename,'w') as csvfile:
+            owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+            owriter.writerow(['timestamp']+['mac']+['ssid'])
+        for t in range(0,max_time):
+            for e in self.ws:
+                if divmod(t,e.freqInSeconds)[1] == 0:
+                    for ssid in e.savedSSIDProfiles:
+                        with open(filename,'a') as csvfile:
+                            owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
+                            owriter.writerow([t]+[e.MAC]+[ssid])
 
     def save_file(self):
         self.f.generatePCAP('test1.pcap')

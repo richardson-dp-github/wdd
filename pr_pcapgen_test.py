@@ -50,10 +50,10 @@ print 'reverse hex string = ' + reverse_hex_str
 '''
 
 
-s = t.ScenarioGen1()
+s = t.ScenarioGen2()
+s.add_emitter(1,2,"aa:bb:cc:dd:ee:01")
 
-s.run_probes()
-
-
-
-s.save_file()
+s.add_emitter()
+s.add_emitter()
+s.add_emitter()
+s.createCSV()
