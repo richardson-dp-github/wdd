@@ -1,6 +1,7 @@
 # This was modeled on an actual collect of the owner's own devices.
 # All channels were modeled via Wireshark and a Wi-Pi put into monitor mode via aircrack-ng
-# Probe Requests are broadcast, so there is no indication of whether or not the Wi-Pi was successfully put in monitor mode
+# Probe Requests are broadcast, so there is no indication of whether or not the Wi-Pi was successfully put in monitor
+# mode
 
 
 import random
@@ -261,7 +262,7 @@ class AccessPoint:
 
 
 
-
+'''
 class WiFiEmitter_DirectToDatabase:
 
     SSIDPool = ['2WIRE024','Dunkin Guest','Panera','DubPub','Fly Dayton Public Wifi','Dublin Airport Free Wifi','prg.aero-free','WiFi2GO_007','prague','Hajnovka wifi','lavdis','Salanda','InternetAcko','MUNI','Hotel International Free']
@@ -291,15 +292,21 @@ class WiFiEmitter_DirectToDatabase:
         for i in self.savedSSIDProfiles:
             tableEntries.append((datetime.datetime,self.MAC,i))
         return tableEntries
+'''
+
 
 class WiFiEmitter:
 
-    def __init__(self, freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff", lat=20.1, long=20.1):
+    def __init__(self, freqInSeconds=40, MAC="aa:bb:cc:dd:ee:ff", lat=20.1, long=20.1, channel=1, extendedsupportedratestag='', supportedratestag='', expectedsignalstrength=-37):
         self.savedSSIDProfiles = []
-        self.freqInSeconds = freqInSeconds
+        self.probeFreqInSeconds = freqInSeconds
         self.MAC = MAC
         self.lat = lat
         self.long = long
+        self.extendedSupportedRatesTag = extendedsupportedratestag   # In Hex
+        self.supportedRatesTag = supportedratestag                   # In Hex
+        self.expected_signal_strength = expectedsignalstrength       # For simulation purposes only
+        self.channel = channel
 
     def defineSSIDProfile(self, common=1, rare=1):
         for i in range(0,common):
@@ -307,6 +314,9 @@ class WiFiEmitter:
         for i in range(0,rare):
             self.savedSSIDProfiles.append(self.rtnRandomSSID(False))
 
+    def define_tags(self,extendedsupportedratestag='', supportedratestag=''):
+        self.extendedSupportedRatesTag=extendedsupportedratestag
+        self.supportedRatesTag=supportedratestag
 
     def addPreferredAccessPoint(self, SSID):
         self.savedSSIDProfiles.append(SSID)
@@ -372,6 +382,7 @@ class ScenarioGen1:
 # Create the scenario.
 # Run additional commands to create emitters
 
+# With respect to a single access point, a single sniffer
 class ScenarioGen2:
     def __init__(self):
         self.ws = []
@@ -394,14 +405,14 @@ class ScenarioGen2:
     def createCSV(self, filename='test1.csv', max_time=50):
         with open(filename,'w') as csvfile:
             owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
-            owriter.writerow(['timestamp']+['mac']+['ssid'])
+            owriter.writerow(['timestamp']+['requesttype']+['mac']+['ssid']+['supportedratestag']+['extendedsupportedratestag']+['ssisignal']+['channel'])
         for t in range(0,max_time):
             for e in self.ws:
-                if divmod(t,e.freqInSeconds)[1] == 0:
+                if divmod(t,e.probeFreqInSeconds)[1] == 0:
                     for ssid in e.savedSSIDProfiles:
                         with open(filename,'a') as csvfile:
                             owriter = csv.writer(csvfile,delimiter = ',', quotechar='|',quoting=csv.QUOTE_MINIMAL)
-                            owriter.writerow([t]+[e.MAC]+[ssid])
+                            owriter.writerow([t]+['pr']+[e.MAC]+[ssid]+[e.supportedRatesTag]+[e.extendedSupportedRatesTag]+[e.expected_signal_strength]+[e.channel])
 
     def save_file(self):
         self.f.generatePCAP('test1.pcap')

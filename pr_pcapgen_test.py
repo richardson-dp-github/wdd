@@ -52,8 +52,8 @@ print 'reverse hex string = ' + reverse_hex_str
 
 s = t.ScenarioGen2()
 s.add_emitter(1,2,"aa:bb:cc:dd:ee:01")
+s.add_emitter(1,2,"aa:bb:cc:dd:ee:02")
+s.add_emitter(1,2,"aa:bb:cc:dd:ee:03")
+s.add_emitter(1,2,"aa:bb:cc:dd:ee:04")
 
-s.add_emitter()
-s.add_emitter()
-s.add_emitter()
 s.createCSV()
