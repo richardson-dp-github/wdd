@@ -8,13 +8,36 @@ import csv
 
 class CSV2CassandraKeyspace:
 
-    def __init__(self, csv_filename='test1.csv', table_name='probes'):
+    def __init__(self, csv_filename='test1.csv', table_name='probes', keyspace='mykeyspace'):
         print "initializing CSV to Cassandra keyspace module..."
         self.csv_filename = csv_filename
         self.table_name = table_name
+        self.keyspace = keyspace
+        cluster = Cluster()
+        self.session = cluster.connect(self.keyspace)
+        self.headers = self.extract_headers()
 
     def create_keyspace(self):
         print "creating keyspace..."
+        # Now, the simplest way is to take the headers and make them all
+
+    def create_table(self):
+        x = "CREATE TABLE "
+        x += self.table_name
+        x += "("
+        # Temporarily create all to be varchars
+        # x += "record_name varchar PRIMARY KEY,"
+
+        # Add the headers
+        hh = self.headers
+        for h in hh:
+            h = h + " " + "varchar"
+        hhh = ', '.join(h)
+        x += hhh
+
+        x += ");"
+
+        self.session.execute(x)
 
     def keyspace_exists(self):
         print "checking if keyspace exists..."
@@ -24,6 +47,10 @@ class CSV2CassandraKeyspace:
 
     def delete_existing_keyspace(self):
         print "deleting existing keyspace..."
+
+
+    def ccleartable(session):
+        session.execute("delete from probes where 1;")
 
     def overwrite_keyspace(self):
         print "overwriting existing keyspace..."
@@ -41,7 +68,9 @@ class CSV2CassandraKeyspace:
         cmd='insert into probes ('+headers+') values ('+values+');'
         return cmd
 
+    # This function will scan the imported CSV data and determine what kind of data type is appropriate.
     def determine_data_types(self):
+        print "determining data types..."
 
 
     # This will read the
